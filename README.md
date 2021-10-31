@@ -10,6 +10,10 @@ Activate the virtual environment:
 
 ```source venv/bin/activate```
 
-CD into the root directory of the project and type:
+Install all dependencies:
 
 ```pip install -r requirements.txt```
+
+To deactivate virtual environment:
+
+```deactivate```

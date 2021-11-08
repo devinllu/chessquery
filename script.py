@@ -1,15 +1,10 @@
 import lichess as li
-
-
-import berserk
+import ml
 
 def main():
-    LICHESS_API_TOKEN = li.getLichessToken()
-    session = berserk.TokenSession(LICHESS_API_TOKEN)
-    client = berserk.Client(session=session)
 
-
-    li.saveLichessDataByPlayerToCSV(client=client, username="Lusthetics", max=1000, color=berserk.Color.WHITE)
+    li.saveLichessDataByPlayerToCSV(username="Lusthetics", max=1000, color='white')
+    # ml.rfc(file='data/lusthetics.csv')
 
 if __name__ == "__main__":
     main()

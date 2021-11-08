@@ -13,7 +13,8 @@ def saveLichessDataByPlayerToCSV(client, username, max, color):
     lst = list(client.games.export_by_player(username=username, as_pgn=False, rated=True, opening=True, max=max, color=color))
     
     df = pd.DataFrame(lst)
-    df.to_csv(f"{username}.csv", index=False)
+    filename = username.lower()
+    df.to_csv(f"data/{filename}.csv", index=False)
 
 def main():
     pass

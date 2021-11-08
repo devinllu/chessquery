@@ -1,16 +1,19 @@
+import lichess as li
+import pandas as pd
 import berserk
-
-API_TOKEN = "lip_bYPixWzHsRrAjtPMeUwP"
+import json
+from pprint import pprint
 
 def main():
-    session = berserk.TokenSession(API_TOKEN)
+    LICHESS_API_TOKEN = li.getLichessToken()
+    session = berserk.TokenSession(LICHESS_API_TOKEN)
     client = berserk.Client(session=session)
 
+    lusthetics = li.getLichessDataByPlayerAsJSON(client, "Lusthetics", 10)
+    lusthetics = list(lusthetics)
+    # df = pd.read_json(lusthetics)
 
-    # lst = ['Sasageyo', 'Voinikonis_Nikita', 'Zugzwangerz', 'DOES-NOT-EXIST']
-
-    print(client.users.get_public_data('DrDrunkenstein'))
-
+    pprint(lusthetics[0])
 
 if __name__ == "__main__":
     main()

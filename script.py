@@ -1,16 +1,15 @@
+import lichess as li
+
+
 import berserk
 
-API_TOKEN = "lip_bYPixWzHsRrAjtPMeUwP"
-
 def main():
-    session = berserk.TokenSession(API_TOKEN)
+    LICHESS_API_TOKEN = li.getLichessToken()
+    session = berserk.TokenSession(LICHESS_API_TOKEN)
     client = berserk.Client(session=session)
 
 
-    # lst = ['Sasageyo', 'Voinikonis_Nikita', 'Zugzwangerz', 'DOES-NOT-EXIST']
-
-    print(client.users.get_public_data('DrDrunkenstein'))
-
+    li.saveLichessDataByPlayerToCSV(client=client, username="Lusthetics", max=1000, color=berserk.Color.WHITE)
 
 if __name__ == "__main__":
     main()

@@ -24,32 +24,60 @@ def classify_event(event):
         return 3
     elif event == 'Rated Classical game':
         return 4
+    elif event == 'Rated Correspondence game':
+        return 5
+    elif event.find('tournament'):
+        return 6
     else:
+        print(event)
         exit("Did not find matching event")
 
+def classify_termination(termination):
+    if termination == 'Normal':
+        return 1
+    elif termination == 'Time forfeit':
+        return 2
+    else:
+        print(termination)
+        exit("Did not find matching termination")
 
-def get_substring_in_quotes(input_str):
-    i = 0
-    while input_str[i] != '"':
+class substr:
+    title: ''
+    param: ''
+
+def get_substring(input_str):
+
+    data = substr
+
+    title = ''
+    param = ''
+
+    i = 1
+    while input_str[i] != ' ':
+        title = title + input_str[i]
         i += 1
 
-    i += 1
-    substr = ''
+    i += 2
 
     while input_str[i] != '"':
-        substr = substr + input_str[i]
+        param = param + input_str[i]
         i += 1
 
-    return substr
+    data.title = title.lower()
+    data.param = param
 
+    return data
 
-def parse_pgn(file_src, file_output, show_event=True, show_site=False, show_date=True, show_names=False, elo=True, show_rating_diff=True,
-         show_opening_code=True, show_opening_name=False, show_tc=True, show_termination=True, show_moves=False):
-    file_src = './data/lichess_db_standard_rated_2013-01.txt'
-    file_output = './data/lichess_db_standard_rated_2013-01.csv'
+def parse_pgn(file_src, file_output, show_event=True, show_site=False, show_player_names=False, show_result=True,
+            show_date=True, show_time=False, show_names=False, show_elo=True, show_rating_diff=True,
+            show_opening_code=True, show_opening_name=False, show_tc=True, show_termination=True, show_moves=False):
 
     file = open(file_src)
     file = list(enumerate(file))
+
+    col_names = [['event', 'site', 'white', 'black', 'result', 'utcdate', 'utctime', 'whiteelo',
+                   'blackelo', 'whiteratingdiff', 'blackratingdiff', 'eco', 'opening',
+                   'timecontrol', 'termination']]
 
     i = 0           #line number
 
@@ -63,9 +91,55 @@ def parse_pgn(file_src, file_output, show_event=True, show_site=False, show_date
             # once out of loop, the next line is moves played. The line after that is
             # a newline, before the [Event ""] of the next game.
             while file[i][1] != '\n':
-                info = get_substring_in_quotes(file[i][1])
-                arr.append(info)
+                info = get_substring(file[i][1])
+
                 i += 1
+
+                if info.title == 'event':
+                    if not show_event:
+                        info.param = ''
+                    info.param = classify_event(info.param)
+                elif info.title == 'site':
+                    if not show_site:
+                        info.param = ''
+                elif info.title == 'white' or info.title == 'black':
+                    if not show_player_names:
+                        info.param = ''
+                elif info.title == 'result':
+                    if not show_result:
+                        info.param = ''
+                elif info.title == 'utcdate':
+                    if not show_date:
+                        info.param = ''
+                elif info.title == 'utctime':
+                    if not show_time:
+                        info.param = ''
+                elif info.title == 'whiteelo' or info.title == 'blackelo':
+                    if not show_elo:
+                        info.param = ''
+                elif info.title == 'whiteratingdiff' or info.title == 'blackratingdiff':
+                    if not show_rating_diff:
+                        info.param = ''
+                elif info.title == 'eco':
+                    if not show_opening_code:
+                        info.param = ''
+                elif info.title == 'opening':
+                    if not show_opening_name:
+                        info.param = ''
+                elif info.title == 'timecontrol':
+                    if not show_tc:
+                        info.param = ''
+                elif info.title == 'termination':
+                    if not show_termination:
+                        info.param = ''
+                    info.param = classify_termination(info.param)
+                elif info.title == 'blacktitle' or info.title == 'whitetitle':
+                    continue
+                else:
+                    print("shouldn't have gotten here!")
+                    print(info.title)
+
+                arr.append(info.param)
 
             i += 1
 
@@ -80,12 +154,21 @@ def parse_pgn(file_src, file_output, show_event=True, show_site=False, show_date
     except IndexError:
         pass
 
-    df = pd.DataFrame(data)
+    df = pd.DataFrame()
+
+    df = df.append(col_names)
+    df = df.append(data)
+
     df.to_csv(file_output,index=False,header=False)
 
+
 def main():
-    file_src = './data/lichess_db_standard_rated_2013-01.txt'
+    file_src = './data/lichess_db_standard_rated_2013-01.pgn'
     file_output = './data/lichess_db_standard_rated_2013-01.csv'
+
+    #file_src = './data/smallsubset.pgn'
+    #file_output = './data/smallsubset.csv'
+
     parse_pgn(file_src=file_src,file_output=file_output)
 
 

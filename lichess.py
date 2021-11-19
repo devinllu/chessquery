@@ -16,9 +16,17 @@ def get_color(color):
 
     return berserk.Color.BLACK
 
-def save_by_player(username, max, color):
+def get_variant(variant):
+    if variant.lower() == 'bullet':
+        return berserk.PerfType.BULLET
+    if variant.lower() == 'blitz':
+        return berserk.PerfType.BLITZ
+    if variant.lower() == 'rapid':
+        return berserk.PerfType.RAPID
+
+def save_by_player(username, max, color, variant):
     
-    lst = list(client.games.export_by_player(username=username, as_pgn=False, rated=True, opening=True, max=max, color=get_color(color)))
+    lst = list(client.games.export_by_player(username=username, as_pgn=False, rated=True, opening=True, max=max, perf_type=get_variant(variant), color=get_color(color)))
     
     df = pd.DataFrame(lst)
     filename = username.lower()

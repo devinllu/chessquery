@@ -3,8 +3,8 @@ import ml
 
 def main():
 
-    li.saveLichessDataByPlayerToCSV(username="Lusthetics", max=1000, color='white')
-    # ml.rfc(file='data/lusthetics.csv')
+    # li.save_by_player(username="EricRosen", max=14000, color='white', variant='bullet')
+    ml.predict(file='data/lichess-massive-data.csv')
 
 if __name__ == "__main__":
     main()

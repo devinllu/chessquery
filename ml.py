@@ -2,6 +2,7 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
@@ -12,20 +13,21 @@ def predict(file):
     #    'tournament'],
     #   dtype='object')
     df = pd.read_csv(file)
+    df = df[df['event'] == 2]
 
     # dropped = df.drop(['winner'], axis=1)
     # x = dropped.loc[:, 'rated':'tournament']
-    x = df[['moves', 'opening', 'clock', 'status']].copy()
+    x = df[['blackelo', 'whiteelo', 'eco']].copy()
 
     
     label_encoder = LabelEncoder()
 
-    x['moves'] = label_encoder.fit_transform(x['moves'])
-    x['opening'] = label_encoder.fit_transform(x['opening'])
-    x['clock'] = label_encoder.fit_transform(x['clock'])
-    x['status'] = label_encoder.fit_transform(x['status'])
+    x['eco'] = label_encoder.fit_transform(x['eco'])
+    x['blackelo'] = label_encoder.fit_transform(x['blackelo'])
+    x['whiteelo'] = label_encoder.fit_transform(x['whiteelo'])
+    # x['status'] = label_encoder.fit_transform(x['status'])
 
-    y = label_encoder.fit_transform(df['winner'])
+    y = label_encoder.fit_transform(df['result'])
 
     
     
@@ -35,8 +37,9 @@ def predict(file):
     rfc = make_pipeline(RandomForestClassifier())
     bayes = make_pipeline(GaussianNB())
     knn = make_pipeline(KNeighborsClassifier())
+    mlp = make_pipeline(MLPClassifier(activation='logistic', solver='adam'))
 
-    models = [rfc, bayes, knn]
+    models = [rfc, bayes, knn, mlp]
     lst = []
     for k, v in enumerate(models):
         v.fit(x_train, y_train)

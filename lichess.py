@@ -7,23 +7,18 @@ API_TOKEN = "lip_bYPixWzHsRrAjtPMeUwP"
 session = berserk.TokenSession(API_TOKEN)
 client = berserk.Client(session=session)
 
-def getLichessToken():
+def get_token():
     return API_TOKEN
 
-def getColor(color):
+def get_color(color):
     if color.lower() == 'white':
         return berserk.Color.WHITE
 
     return berserk.Color.BLACK
 
-
-def getLichessDataByPlayerAsJSON(username, max, color):
-
-    return client.games.export_by_player(username=username, as_pgn=False, rated=True, opening=True, max=max, color=getColor(color))
-
-def saveLichessDataByPlayerToCSV(username, max, color):
+def save_by_player(username, max, color):
     
-    lst = list(client.games.export_by_player(username=username, as_pgn=False, rated=True, opening=True, max=max, color=getColor(color)))
+    lst = list(client.games.export_by_player(username=username, as_pgn=False, rated=True, opening=True, max=max, color=get_color(color)))
     
     df = pd.DataFrame(lst)
     filename = username.lower()

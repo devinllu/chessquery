@@ -40,13 +40,14 @@ def predict(file):
     mlp = make_pipeline(MLPClassifier(activation='logistic', solver='adam'))
 
     models = [rfc, bayes, knn, mlp]
+    names = ["Random Forest Classifier", "Naive Bayes", "KNN", "MLP"]
     lst = []
     for k, v in enumerate(models):
         v.fit(x_train, y_train)
         lst.append(v.score(x_test, y_test))
 
-    for i in lst:
-        print(f"Score: {i}")
+    for i, j in zip(lst, names):
+        print(f"{j}: {i}")
     
 
 def main():

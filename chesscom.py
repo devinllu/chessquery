@@ -19,12 +19,12 @@ def main():
     # res = res.json
     # print(res['player']['followers'])
 
-    obj = get_games("lusthetics", "2019", "02")
+    obj = get_games("lusthetics", "2019", "03")
     first_game = obj
 
     df = pd.DataFrame(first_game)
 
-    print(df.columns)
+    print(df.iloc[0].keys())
 
     # print(obj)
 

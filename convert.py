@@ -2,6 +2,8 @@ import csv
 import sys
 
 import pandas as pd
+import numpy as np
+
 
 # takes in string parameter and returns a shorter code
 def classify_event(event):
@@ -32,6 +34,7 @@ def classify_event(event):
         print(event)
         exit("Did not find matching event")
 
+
 def classify_termination(termination):
     if termination == 'Normal':
         return 1
@@ -41,12 +44,13 @@ def classify_termination(termination):
         print(termination)
         exit("Did not find matching termination")
 
+
 class substr:
     title: ''
     param: ''
 
-def get_substring(input_str):
 
+def get_substring(input_str):
     data = substr
 
     title = ''
@@ -68,24 +72,65 @@ def get_substring(input_str):
 
     return data
 
-def parse_pgn(file_src, file_output, show_event=True, show_site=False, show_player_names=False, show_result=True,
-            show_date=True, show_time=False, show_names=False, show_elo=True, show_rating_diff=True,
-            show_opening_code=True, show_opening_name=False, show_tc=True, show_termination=True, show_moves=False):
+
+def get_moves(input_str):
+    data = substr
+
+    # i = 0
+    # while input_str[i] != '\n': #not useful right now
+    #     param = param + input_str[i]
+    #     i += 1
+
+    data.title = 'moves'
+    data.param = input_str
+
+    return data
+
+
+# returns a new column based on the moves played.
+def add_column(condition, input_str):
+    if condition == 'played_f3':
+        index_of = input_str.find('. f3')  # white played f3
+        if index_of == -1:
+            return 0
+        else:
+            return 1
+    elif condition == 'castled':
+        white_castled = input_str.count('. O-O')
+        total_castled = input_str.count(' O-O')
+
+        if total_castled == 0:
+            return 0
+        elif white_castled == 0:  # total_castled = 1
+            return 2
+        elif total_castled == 2:
+            return 3
+        else:  # white_castled == 1 and total_castled == 1:
+            return 1
+
+
+def parse_pgn(file_src, file_output, show_event=True, show_site=False, show_player_names=True, show_result=True,
+              show_date=True, show_time=False, show_names=False, show_elo=True, show_rating_diff=True,
+              show_opening_code=True, show_opening_name=False, show_tc=True, show_termination=True, show_f3_played=True,
+              show_castled=True, show_moves=False):
+    # note, show moves
 
     file = open(file_src)
     file = list(enumerate(file))
 
     col_names = [['event', 'site', 'white', 'black', 'result', 'utcdate', 'utctime', 'whiteelo',
-                   'blackelo', 'whiteratingdiff', 'blackratingdiff', 'eco', 'opening',
-                   'timecontrol', 'termination']]
+                  'blackelo', 'whiteratingdiff', 'blackratingdiff', 'eco', 'opening',
+                  'timecontrol', 'termination', 'moves_played']]
 
-    i = 0           #line number
+    i = 0  # line number
 
-    data = []      #2d array of games
+    data = []  # 2d array of games
+    played_f3 = np.array(['played_f3'])
+    castled = np.array(['castled'])
 
     try:
-        while True:                     #loop for each games
-            arr = []                    #array of game info
+        while True:  # loop for each games
+            arr = []  # array of game info
 
             # loop for each row for info
             # once out of loop, the next line is moves played. The line after that is
@@ -143,9 +188,14 @@ def parse_pgn(file_src, file_output, show_event=True, show_site=False, show_play
 
             i += 1
 
+            info = get_moves(file[i][1])
+
             if show_moves:
-                # todo: haven't done moves yet
-                pass
+                arr.append(info.param)
+            if show_f3_played:
+                played_f3 = np.append(played_f3, add_column('played_f3', info.param))
+            if show_castled:
+                castled = np.append(castled, add_column('castled', info.param))
 
             i += 2
 
@@ -159,17 +209,20 @@ def parse_pgn(file_src, file_output, show_event=True, show_site=False, show_play
     df = df.append(col_names)
     df = df.append(data)
 
-    df.to_csv(file_output,index=False,header=False)
+    df['played_f3'] = played_f3.tolist()
+    df['castled'] = castled.tolist()
+
+    df.to_csv(file_output, index=False, header=False)
 
 
 def main():
-    file_src = './data/lichess_db_standard_rated_2013-01.pgn'
-    file_output = './data/lichess_db_standard_rated_2013-01.csv'
+    # file_src = './data/lichess_db_standard_rated_2013-01.pgn'
+    # file_output = './data/lichess_db_standard_rated_2013-01.csv'
 
-    #file_src = './data/smallsubset.pgn'
-    #file_output = './data/smallsubset.csv'
+    file_src = './data/smallsubset.pgn'
+    file_output = './data/smallsubset.csv'
 
-    parse_pgn(file_src=file_src,file_output=file_output)
+    parse_pgn(file_src=file_src, file_output=file_output)
 
 
 if __name__ == "__main__":

@@ -208,19 +208,25 @@ def parse_pgn(file_src, file_output, show_event=True, show_site=False, show_play
 
     df = df.append(col_names)
     df = df.append(data)
+    df.rename(columns=df.iloc[0], inplace=True)
 
     df['played_f3'] = played_f3.tolist()
     df['castled'] = castled.tolist()
 
-    df.to_csv(file_output, index=False, header=False)
+    df = df.iloc[1:, :]
+
+    df['rating_difference'] = abs(df['whiteelo'].astype(int) - df['blackelo'].astype(int))
+    df['rating_average'] = (df['whiteelo'].astype(float) + df['blackelo'].astype(float))/2
+
+    df.to_csv(file_output, index=False, header=True)
 
 
 def main():
-    # file_src = './data/lichess_db_standard_rated_2013-01.pgn'
-    # file_output = './data/lichess_db_standard_rated_2013-01.csv'
+    file_src = './data/lichess_db_standard_rated_2013-01.pgn'
+    file_output = './data/lichess_db_standard_rated_2013-01.csv'
 
-    file_src = './data/smallsubset.pgn'
-    file_output = './data/smallsubset.csv'
+    #file_src = './data/smallsubset.pgn'
+    #file_output = './data/smallsubset.csv'
 
     parse_pgn(file_src=file_src, file_output=file_output)
 

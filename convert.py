@@ -123,6 +123,8 @@ def parse_pgn(file_src, file_output, show_event=True, show_site=False, show_play
                   'timecontrol', 'termination', 'moves_played']]
 
     i = 0  # line number
+    acc = 0
+    skip = False
 
     data = []  # 2d array of games
     played_f3 = np.array(['played_f3'])
@@ -131,6 +133,7 @@ def parse_pgn(file_src, file_output, show_event=True, show_site=False, show_play
     try:
         while True:  # loop for each games
             arr = []  # array of game info
+            acc += 1
 
             # loop for each row for info
             # once out of loop, the next line is moves played. The line after that is
@@ -162,6 +165,8 @@ def parse_pgn(file_src, file_output, show_event=True, show_site=False, show_play
                 elif info.title == 'whiteelo' or info.title == 'blackelo':
                     if not show_elo:
                         info.param = ''
+                    if info.param == '?':
+                        skip = True
                 elif info.title == 'whiteratingdiff' or info.title == 'blackratingdiff':
                     if not show_rating_diff:
                         info.param = ''
@@ -188,6 +193,11 @@ def parse_pgn(file_src, file_output, show_event=True, show_site=False, show_play
 
             i += 1
 
+            if skip:
+                skip = False
+                i += 2
+                continue
+
             info = get_moves(file[i][1])
 
             if show_moves:
@@ -201,6 +211,9 @@ def parse_pgn(file_src, file_output, show_event=True, show_site=False, show_play
 
             data.append(arr)
 
+            if acc % 50000 == 0:
+                print("completed game " + str(acc))
+
     except IndexError:
         pass
 
@@ -210,8 +223,11 @@ def parse_pgn(file_src, file_output, show_event=True, show_site=False, show_play
     df = df.append(data)
     df.rename(columns=df.iloc[0], inplace=True)
 
-    df['played_f3'] = played_f3.tolist()
-    df['castled'] = castled.tolist()
+    if get_moves and show_f3_played:
+        df['played_f3'] = played_f3.tolist()
+
+    if get_moves and show_castled:
+        df['castled'] = castled.tolist()
 
     df = df.iloc[1:, :]
 
@@ -222,11 +238,11 @@ def parse_pgn(file_src, file_output, show_event=True, show_site=False, show_play
 
 
 def main():
-    file_src = './data/lichess_db_standard_rated_2013-01.pgn'
-    file_output = './data/lichess_db_standard_rated_2013-01.csv'
+    #file_src = './data/lichess_db_standard_rated_2013-01.pgn'
+    #file_output = './data/lichess_db_standard_rated_2013-01.csv'
 
-    #file_src = './data/smallsubset.pgn'
-    #file_output = './data/smallsubset.csv'
+    file_src = './data/smallsubset.pgn'
+    file_output = './data/smallsubset.csv'
 
     parse_pgn(file_src=file_src, file_output=file_output)
 

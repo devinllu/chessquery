@@ -575,6 +575,22 @@
 1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. d3 h6 5. O-O Bc5 6. h3 d6 7. Nc3 Nd4 8. Nd5 Nxd5 9. exd5 c6 10. a3 cxd5 11. Bxd5 Be6 12. Bxb7 Rb8 13. Ba6 O-O 14. c3 Nf5 15. d4 exd4 16. cxd4 Bb6 17. Be3 d5 18. Ne5 Nxe3 19. fxe3 Qg5 20. Qf3 f6 21. Ng4 Bc7 22. b4 Bxg4 23. hxg4 Qh4 24. Qxd5+ Kh8 25. Qh5 Qg3 26. Qh3 Rbe8 27. Qxg3 Bxg3 28. Rf3 Bh4 29. g3 Bg5 30. Re1 Re6 31. Bd3 Rfe8 32. e4 Rc8 33. e5 Bd2 34. Re2 Bc3 35. exf6 Bxd4+ 36. Kh2 Rxe2+ 37. Bxe2 Bxf6 38. a4 Rc2 39. Rf2 Bd4 40. Rf8+ Kh7 41. Re8 Bc3 42. Kh3 Bxb4 43. Bd3+ g6 44. Bxc2 a5 45. Kh4 Kg7 46. g5 h5 47. g4 hxg4 48. Kxg4 Kf7 49. Rc8 Bd2 0-1
 
 [Event "Rated Classical game"]
+[Site "https://lichess.org/rz22schm"]
+[White "?"]
+[Black "Manouche31"]
+[Result "1/2-1/2"]
+[UTCDate "2013.01.02"]
+[UTCTime "15:30:25"]
+[WhiteElo "?"]
+[BlackElo "1183"]
+[ECO "A43"]
+[Opening "Benoni Defense: Benoni Gambit Accepted"]
+[TimeControl "900+8"]
+[Termination "Normal"]
+
+1. d4 c5 2. dxc5 Qa5+ 3. c3 Qxc5 4. Be3 Qb5 5. Na3 Qxb2 6. Rc1 Qxa3 7. Qc2 d5 8. Rd1 e6 9. c4 Qa5+ 10. Bd2 Qc7 11. Qa4+ Bd7 12. Qc2 d4 13. Nh3 Qc6 14. Bf4 e5 15. Bxe5 Bxh3 16. gxh3 Qxh1 17. Qa4+ Nc6 18. Rxd4 b5 19. Qd1 Nxd4 20. Qxd4 Bb4+ 21. Kd1 Rd8 22. e3 Rxd4+ 23. exd4 Qxf1+ 24. Kc2 f6 25. cxb5 Qc4+ 26. Kd1 fxe5 27. dxe5 Qd4+ 28. Ke2 Qxe5+ 29. Kf1 Qxh2 30. a3 Bxa3 31. b6 Kf7 32. bxa7 Nf6 33. a8=Q Rxa8 34. Ke2 Qxh3 35. f3 Re8+ 36. Kf2 Qf5 37. Kg3 Nh5+ 38. Kh4 Re4+ 39. fxe4 Qxe4+ 40. Kxh5 Bc1 1/2-1/2
+
+[Event "Rated Classical game"]
 [Site "https://lichess.org/descpsmi"]
 [White "j-jorjik"]
 [Black "jesuss"]

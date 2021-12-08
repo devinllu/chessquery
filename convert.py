@@ -1,5 +1,6 @@
 import csv
 import sys
+import time
 
 import pandas as pd
 import numpy as np
@@ -130,6 +131,9 @@ def parse_pgn(file_src, file_output, show_event=True, show_site=False, show_play
     played_f3 = np.array(['played_f3'])
     castled = np.array(['castled'])
 
+    start_time = time.perf_counter()
+    runtime = 0
+
     try:
         while True:  # loop for each games
             arr = []  # array of game info
@@ -204,18 +208,42 @@ def parse_pgn(file_src, file_output, show_event=True, show_site=False, show_play
                 arr.append(info.param)
             if show_f3_played:
                 played_f3 = np.append(played_f3, add_column('played_f3', info.param))
+                pass
             if show_castled:
                 castled = np.append(castled, add_column('castled', info.param))
+                pass
 
             i += 2
 
             data.append(arr)
 
-            if acc % 50000 == 0:
-                print("completed game " + str(acc))
+            if acc % 10 == 0:
+                print("completed game " + str(acc) + ". Doing intermediate processing")
+
+                df = pd.DataFrame()
+                df = df.append(data)
+
+                df.to_csv(file_output, index=False, header=False, mode='a')
+
+                del df
+
+                end_time = time.perf_counter()
+                runtime = end_time - start_time
+
+                print("runtime: " + str(runtime) + " seconds.")
+
+                # resetting parameters
+
+                arr = []
+                data = []
+                played_f3 = np.array(['played_f3'])
+                castled = np.array(['castled'])
+
 
     except IndexError:
         pass
+
+    print("now starting post processing")
 
     df = pd.DataFrame()
 
@@ -223,18 +251,27 @@ def parse_pgn(file_src, file_output, show_event=True, show_site=False, show_play
     df = df.append(data)
     df.rename(columns=df.iloc[0], inplace=True)
 
+    df.to_csv(file_output, index=False, header=True, mode='a')
+
     if get_moves and show_f3_played:
         df['played_f3'] = played_f3.tolist()
+        pass
 
     if get_moves and show_castled:
         df['castled'] = castled.tolist()
+        pass
 
     df = df.iloc[1:, :]
 
     df['rating_difference'] = abs(df['whiteelo'].astype(int) - df['blackelo'].astype(int))
     df['rating_average'] = (df['whiteelo'].astype(float) + df['blackelo'].astype(float))/2
 
-    df.to_csv(file_output, index=False, header=True)
+    #df.to_csv(file_output, index=False, header=True, mode='a')
+
+    end_time = time.perf_counter()
+    runtime = end_time - start_time
+
+    print("Finished. Runtime: " + str(runtime))
 
 
 def main():
@@ -242,7 +279,7 @@ def main():
     #file_output = './data/lichess_db_standard_rated_2013-01.csv'
 
     file_src = './data/smallsubset.pgn'
-    file_output = './data/smallsubset.csv'
+    file_output = 'data/smallsubset.csv'
 
     parse_pgn(file_src=file_src, file_output=file_output)
 

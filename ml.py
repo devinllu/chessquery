@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, LabelBinarizer, OneHotEncoder
 import numpy as np
 import matplotlib.pyplot as plt
+from pprint import pprint
 
 def predict(file):
     # Index(['id', 'rated', 'variant', 'speed', 'perf', 'createdAt', 'lastMoveAt',
@@ -56,48 +57,58 @@ def measure_attributes(file):
     df = pd.read_csv(file)
     df = df.drop('site', axis=1)
 
-    print(df[:3])
-
-    # df.dropna(inplace=True)
-
-    print(f"shape: {df.shape}")
-
     x = df.drop('result', axis=1)
+    x = x.drop('utcdate', axis=1)
+    cols = x.columns
 
+    # note: one hot encoding causes increased dimensionality in feature_importances
     ohe = OneHotEncoder()
     lbe = LabelEncoder()
     y_encoder = LabelBinarizer()
 
+    pprint(x)
     for col in x.columns:
         x[col] = lbe.fit_transform(x[col])
-    x = ohe.fit_transform(x)
+    y = df['result']
 
-    y = lbe.fit_transform(df['result'])
+    pprint(x)
 
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
 
     model = RandomForestClassifier().fit(x_train, y_train)
     print(f"Gradient Boosting Score: {model.score(x_test, y_test)}")
     print(f"Feature Importances: {model.feature_importances_}")
+    print(f"Length: {len(model.feature_importances_)}")
 
-    features = ['event',"white","black","utcdate","utctime","whiteelo","blackelo","whiteratingdiff","blackratingdiff","eco","opening","timecontrol","termination","moves_played","played_f3","castled","rating_difference","rating_average"]
+    features = x.columns
     importances = model.feature_importances_
     indices = np.argsort(importances)
 
-    print(indices)
-    print(len(features))
-    print(importances)
-    print(len(importances))
-    print(len(indices))
+    show_horizontal(features, importances, indices)
 
+    # features = ['event',"white","black","utcdate","utctime","whiteelo","blackelo","whiteratingdiff","blackratingdiff","eco","opening","timecontrol","termination","moves_played","played_f3","castled","rating_difference","rating_average"]
+    # importances = pd.Series(model.feature_importances_, index=cols)
+    # importances.nlargest(10).plot(kind='barv')
+
+def show_horizontal(features, importances, indices):
     plt.title('Feature Importances')
-    plt.plot(importances)
-    # plt.barh(range(len(indices)), importances[indices], color='b', align='center')
-    # plt.yticks(range(len(indices)), [features[i] for i in indices])
-    # plt.xlabel('Relative Importance')
-    plt.savefig('graph.png')
+    plt.barh(range(len(indices)), importances[indices], color='b', align='center')
+    plt.yticks(range(len(indices)), [features[i] for i in indices])
+    plt.xlabel('Relative Importance')
+    plt.ylabel('Features')
+    plt.savefig('feat_importance.png')
     plt.show()
+    
 
+def show_vertical(features, importances, indices):
+    plt.title('Feature Importances')
+    plt.bar(range(len(indices)), importances[indices], color='b')
+    plt.xticks(range(len(indices)), [features[i] for i in indices], rotation=45)
+    plt.xlabel('Features')
+    plt.ylabel('Relative Importance')
+    plt.show()
+    # plt.savefig('graph.png')
+    
 
 def main():
     measure_attributes("data/lichess-std-big.csv")

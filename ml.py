@@ -53,6 +53,55 @@ def predict(file):
     for i, j in zip(lst, names):
         print(f"{j}: {i}")
 
+def predict_castled(file):
+    df = pd.read_csv(file)
+
+    df = df[df['castled'] == 1]
+    
+    # note: selecting only the important features actually increases score substantially for KNN
+    x = df.drop(['site', 'result', 'utcdate', 'utctime'], axis=1)
+    # x = df.filter(['whiteratingdiff', 'blackratingdiff', 'rating_average', 'rating_difference', 'blackelo', 'whiteelo'], axis=1)
+    y = df['result']
+
+    for col in x.columns:
+        x[col] = LabelEncoder().fit_transform(x[col])
+
+    train_models(x, y)
+
+def predict_f3(file):
+
+    df = pd.read_csv(file)
+
+    df = df[df['played_f3'] == 1]
+    
+    # x = df.drop(['site', 'result', 'utcdate', 'utctime'], axis=1)
+    x = df.filter(['whiteratingdiff', 'blackratingdiff', 'rating_average', 'rating_difference', 'blackelo', 'whiteelo'], axis=1)
+    y = df['result']
+
+    # for col in x.columns:
+    #     x[col] = LabelEncoder().fit_transform(x[col])
+
+    train_models(x, y)
+
+def train_models(x, y):
+    pprint(x)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
+
+    rfc = make_pipeline(RandomForestClassifier())
+    bayes = make_pipeline(GaussianNB())
+    knn = make_pipeline(KNeighborsClassifier())
+    mlp = make_pipeline(MLPClassifier(activation='logistic', solver='adam'))
+
+    models = [rfc, bayes, knn, mlp]
+    names = ["Random Forest Classifier", "Naive Bayes", "KNN", "MLP"]
+    lst = []
+    for k, v in enumerate(models):
+        v.fit(x_train, y_train)
+        lst.append(v.score(x_test, y_test))
+
+    for i, j in zip(lst, names):
+        print(f"{j}: {i}")
+
 def measure_attributes(file):
     df = pd.read_csv(file)
     df = df.drop('site', axis=1)
@@ -111,7 +160,8 @@ def show_vertical(features, importances, indices):
     
 
 def main():
-    measure_attributes("data/lichess-std-big.csv")
+    # measure_attributes("data/lichess-std-big.csv")
+    predict_f3("data/lichess-std-big.csv")
 
 if __name__ == "__main__":
     main()

@@ -351,7 +351,7 @@ def main():
 
     file_src = './data/oct lichess/lichess_db_standard_rated_2021-10.txt'
     #file_output = './data/lichess_db_standard_rated_2021-10.csv'
-    file_output = './data/lichess_db_standard_rated_2021-10-subset.txt'
+    file_output = 'data/lichess_db_standard_rated_2021-10-subset.csv'
 
     #file_src = './data/smallsubset.pgn'
     #file_output = 'data/smallsubset.csv'

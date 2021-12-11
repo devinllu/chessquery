@@ -2,6 +2,7 @@ import requests
 from chessdotcom import get_player_games_by_month_pgn, get_player_games_by_month
 from pprint import pprint
 import pandas as pd
+import json
 
 def get_stats(username):
     res = requests.get(f"https://api.chess.com/pub/player/{username}/stats")
@@ -19,12 +20,15 @@ def main():
     # res = res.json
     # print(res['player']['followers'])
 
-    obj = get_games("lusthetics", "2019", "03")
-    first_game = obj
+    obj = requests.get("https://www.chess.com/ratings")
+    pprint(obj.__dict__)
 
-    df = pd.DataFrame(first_game)
+    # obj = get_games("lusthetics", "2019", "03")
+    # first_game = obj
 
-    print(df.iloc[0].keys())
+    # df = pd.DataFrame(first_game)
+
+    # print(df.iloc[0].keys())
 
     # print(obj)
 

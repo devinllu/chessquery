@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
 from pprint import pprint
+from sklearn.model_selection import GridSearchCV
 
 def predict(file):
     df = pd.read_csv(file)
@@ -18,25 +19,24 @@ def predict(file):
 
     x['eco'] = LabelEncoder().fit_transform(x['eco'])
     x['timecontrol'] = LabelEncoder().fit_transform(x['timecontrol'])
-    print(x.dtypes)
 
-    # train_models(x, y)
+    train_models(x, y)
 
 def train_models(x, y):
     pprint(x)
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
 
-    # for i in range(500, 1000, 100):
-    #     rfc = RandomForestClassifier(n_estimators=i, random_state=42).fit(x_train, y_train)
-    #     pprint(f'Score for {i} is: {rfc.score(x_test, y_test)}')
+    # hypertune_rfc(x_train, x_test, y_train, y_test)
+    # hypertune_mlp(x_train, x_test, y_train, y_test)
+    # {'activation': 'tanh', 'alpha': 0.0001, 'hidden_layer_sizes': (50, 100, 50), 'learning_rate': 'adaptive', 'solver': 'adam'}
 
-    rfc = make_pipeline(RandomForestClassifier())
-    bayes = make_pipeline(GaussianNB())
-    mlp = make_pipeline(MLPClassifier())
+    rfc = make_pipeline(RandomForestClassifier(n_estimators=500, max_depth=15, min_samples_split=10, min_samples_leaf=5))
+    # bayes = make_pipeline(GaussianNB())
+    mlp = make_pipeline(MLPClassifier(activation='tanh', alpha=0.0001, hidden_layer_sizes=(50, 100, 50), learning_rate='adaptive', solver='adam'))
 
-    models = [rfc, bayes, mlp]
+    models = [rfc, mlp]
     
-    names = ["Random Forest Classifier", "Naive Bayes", "MLP"]
+    names = ["Random Forest Classifier", "MLP"]
     lst = []
     for k, v in enumerate(models):
         v.fit(x_train, y_train)
@@ -44,6 +44,62 @@ def train_models(x, y):
 
     for i, j in zip(lst, names):
         print(f"{j}: {i}")
+
+def hypertune_rfc(x_train, x_test, y_train, y_test):
+    forest = RandomForestClassifier()
+    n_estimators = [500, 600]
+    max_depth = [20, 30]
+    min_samples_split = [15, 10]
+    min_samples_leaf = [5, 10] 
+
+    hyperF = dict(n_estimators = n_estimators, max_depth = max_depth,  
+                min_samples_split = min_samples_split, 
+                min_samples_leaf = min_samples_leaf)
+
+    gridF = GridSearchCV(forest, hyperF, cv = 3, verbose = 1, 
+                        n_jobs = -1)
+    clf = gridF.fit(x_train, y_train)
+
+    # Best paramete set
+    print('Best parameters found:\n', clf.best_params_)
+
+    # All results
+    means = clf.cv_results_['mean_test_score']
+    stds = clf.cv_results_['std_test_score']
+    for mean, std, params in zip(means, stds, clf.cv_results_['params']):
+        print("%0.3f (+/-%0.03f) for %r" % (mean, std * 2, params))
+
+
+    # n_estimators = [500, 600, 1200]
+    # max_depth = [15, 20, 30]
+    # min_samples_split = [10, 15, 100]
+    # min_samples_leaf = [5, 10, 10] 
+
+    # for i, j, k, l in zip(n_estimators, max_depth, min_samples_split, min_samples_leaf):
+    #     rfc = RandomForestClassifier(n_estimators=i, random_state=42, max_depth=j, min_samples_split=k, min_samples_leaf=l).fit(x_train, y_train)
+    #     pprint(f'Score for {i} is: {rfc.score(x_test, y_test)}')
+
+def hypertune_mlp(x_train, x_test, y_train, y_test):
+    mlp = MLPClassifier(max_iter=100)
+    parameter_space = {
+        'hidden_layer_sizes': [(50,50,50), (50,100,50), (100,)],
+        'activation': ['tanh', 'relu'],
+        'solver': ['sgd', 'adam'],
+        'alpha': [0.0001, 0.05],
+        'learning_rate': ['constant','adaptive'],
+    }
+
+    clf = GridSearchCV(mlp, parameter_space, n_jobs=-1, cv=3)
+    clf.fit(x_train, y_train)
+
+    # Best paramete set
+    print('Best parameters found:\n', clf.best_params_)
+
+    # All results
+    means = clf.cv_results_['mean_test_score']
+    stds = clf.cv_results_['std_test_score']
+    for mean, std, params in zip(means, stds, clf.cv_results_['params']):
+        print("%0.3f (+/-%0.03f) for %r" % (mean, std * 2, params))
 
 def measure_attributes(file):
     df = pd.read_csv(file, nrows=100000)
